@@ -1,0 +1,316 @@
+/* Dark Mode Styles for RetailSIM */
+
+:root {
+    /* Dark mode colors */
+    --dark-bg: #1a1a1a;
+    --dark-card: #2d2d2d;
+    --dark-text: #e0e0e0;
+    --dark-border: #404040;
+    --dark-input: #3a3a3a;
+    --dark-hover: #404040;
+    --dark-accent: #ffd700;
+}
+
+body.dark-mode {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #3a3a3a 100%);
+    color: var(--dark-text);
+}
+
+/* Dark mode for cards */
+.dark-mode .dashboard-card,
+.dark-mode .pos-container,
+.dark-mode .inventory-item,
+.dark-mode .cart-item,
+.dark-mode .role-card,
+.dark-mode .benefit-card,
+.dark-mode .problem-card {
+    background: var(--dark-card);
+    color: var(--dark-text);
+    border-color: var(--dark-border);
+}
+
+.dark-mode .dashboard-card:hover,
+.dark-mode .role-card:hover,
+.dark-mode .benefit-card:hover {
+    box-shadow: 0 20px 40px rgba(255, 179, 102, 0.2);
+}
+
+/* Dark mode for forms and inputs */
+.dark-mode .form-input,
+.dark-mode .search-bar,
+.dark-mode .date-picker {
+    background: var(--dark-input);
+    border-color: var(--dark-border);
+    color: var(--dark-text);
+}
+
+.dark-mode .form-input:focus,
+.dark-mode .search-bar:focus,
+.dark-mode .date-picker:focus {
+    border-color: var(--accent-gold);
+    box-shadow: 0 0 0 3px rgba(255, 179, 102, 0.2);
+}
+
+/* Dark mode for buttons */
+.dark-mode .btn-primary {
+    background: linear-gradient(135deg, var(--accent-gold) 0%, #ffd700 100%);
+    color: var(--dark-bg);
+}
+
+.dark-mode .btn-secondary {
+    color: var(--accent-gold);
+    border-color: var(--accent-gold);
+}
+
+.dark-mode .btn-secondary:hover {
+    background: var(--accent-gold);
+    color: var(--dark-bg);
+}
+
+.dark-mode .payment-btn {
+    background: var(--success-green);
+}
+
+.dark-mode .payment-btn:hover {
+    background: #229954;
+}
+
+/* Dark mode for tables */
+.dark-mode .data-table {
+    background: var(--dark-card);
+    color: var(--dark-text);
+}
+
+.dark-mode .data-table th {
+    background: var(--dark-input);
+    color: var(--dark-text);
+    border-color: var(--dark-border);
+}
+
+.dark-mode .data-table td {
+    border-color: var(--dark-border);
+}
+
+.dark-mode .data-table tbody tr:hover {
+    background: var(--dark-hover);
+}
+
+/* Dark mode for status badges */
+.dark-mode .status-badge.status-pending {
+    background: #3d3310;
+    color: #f1c40f;
+}
+
+.dark-mode .status-badge.status-completed {
+    background: #1e3a1e;
+    color: #27ae60;
+}
+
+.dark-mode .status-badge.status-verified {
+    background: #1e2a3a;
+    color: #3498db;
+}
+
+/* Dark mode for navigation */
+.dark-mode .navbar {
+    background: rgba(45, 45, 45, 0.98);
+    border-bottom-color: var(--dark-border);
+}
+
+.dark-mode .navbar a {
+    color: var(--dark-text);
+}
+
+.dark-mode .navbar a:hover {
+    color: var(--accent-gold);
+}
+
+/* Dark mode for role badges */
+.dark-mode .role-badge {
+    background: linear-gradient(135deg, var(--accent-gold) 0%, #ffd700 100%);
+    color: var(--dark-bg);
+}
+
+/* Dark mode for modals */
+.dark-mode .modal-overlay {
+    background: rgba(0, 0, 0, 0.9);
+}
+
+.dark-mode .modal-content {
+    background: var(--dark-card);
+    color: var(--dark-text);
+}
+
+/* Dark mode for tabs */
+.dark-mode .tab-button {
+    color: var(--medium-gray);
+}
+
+.dark-mode .tab-button.active {
+    background: var(--accent-gold);
+    color: var(--dark-bg);
+}
+
+/* Dark mode for alerts and notifications */
+.dark-mode .notification {
+    background: var(--dark-card);
+    border-color: var(--dark-border);
+    color: var(--dark-text);
+}
+
+.dark-mode .alert-card {
+    background: #3a1f1f;
+    border-left-color: var(--error-red);
+}
+
+.dark-mode .success-card {
+    background: #1e3a1e;
+    border-left-color: var(--success-green);
+}
+
+.dark-mode .warning-card {
+    background: #3d3310;
+    border-left-color: var(--warning-amber);
+}
+
+/* Dark mode for charts and graphs */
+.dark-mode .chart-container,
+.dark-mode .chart-container-small {
+    background: var(--dark-card);
+    border-radius: 8px;
+}
+
+/* Dark mode toggle button */
+.dark-mode-toggle {
+    position: fixed;
+    top: 2rem;
+    right: 2rem;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.dark-mode .dark-mode-toggle {
+    background: rgba(45, 45, 45, 0.9);
+    color: var(--dark-text);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.dark-mode-toggle:hover {
+    transform: scale(1.1);
+}
+
+/* Dark mode for footer */
+.dark-mode .footer {
+    background: rgba(26, 26, 26, 0.95);
+    color: var(--dark-text);
+}
+
+/* Dark mode for specific elements */
+.dark-mode .kpi-card {
+    background: linear-gradient(135deg, var(--accent-gold) 0%, #ffd700 100%);
+    color: var(--dark-bg);
+}
+
+.dark-mode .recommendation-card {
+    background: #3d3310;
+    border-left-color: var(--warning-amber);
+}
+
+.dark-mode .restock-item {
+    background: #3d3310;
+    border-left-color: var(--warning-amber);
+}
+
+.dark-mode .product-performance-item {
+    background: var(--dark-card);
+    border-left-color: var(--info-blue);
+}
+
+/* Dark mode for performance indicators */
+.dark-mode .performance-indicator.performance-up {
+    background: #1e3a1e;
+    color: var(--success-green);
+}
+
+.dark-mode .performance-indicator.performance-down {
+    background: #3a1f1f;
+    color: var(--error-red);
+}
+
+.dark-mode .performance-indicator.performance-stable {
+    background: #3d3310;
+    color: var(--warning-amber);
+}
+
+/* Dark mode for stock levels */
+.dark-mode .stock-level.stock-high {
+    background: #1e3a1e;
+    color: var(--success-green);
+}
+
+.dark-mode .stock-level.stock-medium {
+    background: #3d3310;
+    color: var(--warning-amber);
+}
+
+.dark-mode .stock-level.stock-low {
+    background: #3a1f1f;
+    color: var(--error-red);
+}
+
+/* Dark mode for timeline items */
+.dark-mode .timeline-item {
+    color: var(--dark-text);
+}
+
+.dark-mode .timeline-item::before {
+    background: var(--accent-gold);
+}
+
+.dark-mode .timeline-item::after {
+    background: var(--dark-border);
+}
+
+/* Dark mode for bulk actions and panels */
+.dark-mode .bulk-actions {
+    background: var(--dark-card);
+    border-color: var(--dark-border);
+}
+
+.dark-mode .verification-panel {
+    background: var(--dark-card);
+    border-left-color: var(--accent-gold);
+}
+
+/* Dark mode for inputs and selects */
+.dark-mode select.form-input,
+.dark-mode select.date-picker {
+    background: var(--dark-input);
+    border-color: var(--dark-border);
+    color: var(--dark-text);
+}
+
+/* Dark mode for canvas elements */
+.dark-mode canvas {
+    background: var(--dark-card);
+}
+
+/* Responsive adjustments for dark mode */
+@media (max-width: 768px) {
+    .dark-mode-toggle {
+        top: 1rem;
+        right: 1rem;
+        width: 40px;
+        height: 40px;
+    }
+}

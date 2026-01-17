@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Owner - RetailSIM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.0/echarts.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-orange: #FF6B35;
+            --secondary-coral: #FF8E53;
+            --accent-gold: #FFB366;
+            --deep-charcoal: #2C3E50;
+            --medium-gray: #7F8C8D;
+            --light-gray: #ECF0F1;
+            --success-green: #27AE60;
+            --warning-amber: #F39C12;
+            --error-red: #E74C3C;
+            --info-blue: #3498DB;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        /* --- DARK MODE STYLES --- */
+        body.dark-mode {
+            background: #1a1a1a;
+            color: #f3f4f6;
+        }
+
+        body.dark-mode .navbar {
+            background: rgba(45, 45, 45, 0.95);
+            border-bottom-color: #404040;
+        }
+
+        body.dark-mode .dashboard-card {
+            background-color: #2d2d2d !important;
+            color: #f3f4f6;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        body.dark-mode .filter-container {
+            background-color: #2d2d2d !important;
+            color: #f3f4f6;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        body.dark-mode .text-gray-800 { color: #f3f4f6; }
+        body.dark-mode .text-gray-700 { color: #e5e7eb; }
+        body.dark-mode .text-gray-600 { color: #9ca3af; }
+        body.dark-mode .text-gray-500 { color: #9ca3af; }
+
+        body.dark-mode .date-picker,
+        body.dark-mode select {
+            background-color: #374151 !important;
+            border-color: #4b5563;
+            color: white;
+        }
+
+        body.dark-mode .btn-secondary {
+            background-color: #374151;
+            color: white;
+            border-color: #4b5563;
+        }
+        
+        body.dark-mode .btn-secondary:hover {
+            background-color: var(--primary-orange);
+            border-color: var(--primary-orange);
+        }
+
+        body.dark-mode .product-performance-item {
+            background-color: #374151;
+            color: #f3f4f6;
+            border-left-color: var(--info-blue);
+        }
+
+        body.dark-mode .restock-item {
+            background: linear-gradient(135deg, #4b3e2f 0%, #5c4d35 100%);
+            border-left-color: var(--warning-amber);
+        }
+
+        /* --- STANDARD STYLES --- */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .dashboard-card {
+            background: #ffffff !important;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .filter-container {
+            background-color: #ffffff !important;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            transition: background-color 0.3s ease;
+        }
+        
+        .kpi-card {
+            background: linear-gradient(135deg, var(--primary-orange) 0%, var(--secondary-coral) 100%);
+            color: white;
+            border-radius: 16px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transform: translate(30px, -30px);
+        }
+        
+        .kpi-value {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .kpi-label { font-size: 0.875rem; opacity: 0.9; }
+        .chart-container { height: 400px; width: 100%; }
+        .chart-container-small { height: 250px; width: 100%; }
+        
+        .role-badge {
+            background: linear-gradient(135deg, var(--primary-orange) 0%, var(--secondary-coral) 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        
+        .date-picker {
+            background-color: #ffffff !important;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 0.75rem;
+            transition: all 0.3s ease;
+            color: #1f2937;
+        }
+        
+        .date-picker:focus {
+            outline: none;
+            border-color: var(--primary-orange);
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-orange) 0%, var(--secondary-coral) 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(255, 107, 53, 0.3); }
+        
+        .btn-secondary {
+            background: white;
+            color: var(--primary-orange);
+            border: 2px solid var(--primary-orange);
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+        }
+        
+        .btn-secondary:hover { background: var(--primary-orange); color: white; }
+        
+        .performance-indicator {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .performance-up { background: #d4edda; color: #155724; }
+        .performance-down { background: #f8d7da; color: #721c24; }
+        .performance-stable { background: #fff3cd; color: #856404; }
+        
+        .product-performance-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            border-left: 4px solid var(--info-blue);
+        }
+        
+        .restock-item {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border-left: 4px solid var(--warning-amber);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        @media (max-width: 768px) {
+            .kpi-value { font-size: 2rem; }
+            .chart-container { height: 300px; }
+            .dashboard-card { margin: 1rem; padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar fixed top-0 left-0 right-0 z-50 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <a href="index.html" class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-lg">SI</span>
+                    </div>
+                    <span class="text-xl font-semibold text-gray-800">RetailSIM</span>
+                </a>
+            </div>
+            
+            <div class="flex items-center space-x-6">
+                <div class="role-badge">Owner</div>
+                <div class="text-sm text-gray-600">
+                    <span class="font-medium">Alif</span>
+                    <div class="text-xs">Aktif</div>
+                </div>
+                <button class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition" onclick="toggleDarkMode()" id="dark-mode-toggle">
+                    <svg class="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" id="toggle-icon">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                    </svg>
+                </button>
+                <a href="index.html" class="text-gray-600 hover:text-orange-500 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="pt-24 px-6 pb-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">Dashboard Owner</h1>
+                <p class="text-gray-600">Dashboard Visualisasi Data untuk monitoring dan pengambilan keputusan</p>
+            </div>
+
+            <div class="filter-container">
+                <div class="flex flex-wrap items-center gap-4">
+                    <div class="flex items-center space-x-2">
+                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Periode:</label>
+                        <input type="date" id="start-date" class="date-picker" value="2025-01-01">
+                        <span class="text-gray-500">sampai</span>
+                        <input type="date" id="end-date" class="date-picker" value="2025-01-15">
+                    </div>
+                    <button class="btn-primary" onclick="updateDashboard()">Update Dashboard</button>
+                    <button class="btn-secondary" onclick="exportDashboard()">Export Data</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="kpi-card">
+                    <div class="kpi-value" id="total-revenue">Rp 0</div>
+                    <div class="kpi-label">Total Pendapatan</div>
+                    <div class="performance-indicator performance-up mt-2">+12.5% dari bulan lalu</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-value" id="total-transactions">0</div>
+                    <div class="kpi-label">Total Transaksi</div>
+                    <div class="performance-indicator performance-up mt-2">+8.3% dari bulan lalu</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-value" id="avg-transaction">Rp 0</div>
+                    <div class="kpi-label">Rata-rata Transaksi</div>
+                    <div class="performance-indicator performance-stable mt-2">+1.2% dari bulan lalu</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-value" id="profit-margin">0%</div>
+                    <div class="kpi-label">Margin Laba</div>
+                    <div class="performance-indicator performance-down mt-2">-2.1% dari bulan lalu</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2 space-y-8">
+                    <div class="dashboard-card p-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-xl font-semibold text-gray-800">Performa Penjualan</h3>
+                            <select id="sales-period" class="date-picker w-32" onchange="updateSalesChart()">
+                                <option value="7">7 Hari</option>
+                                <option value="30" selected>30 Hari</option>
+                                <option value="90">90 Hari</option>
+                            </select>   
+                        </div>
+                        <div id="sales-chart" class="chart-container"></div>
+                    </div>
+                    <div class="dashboard-card p-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-6">Pendapatan dan  Laba</h3>
+                        <div id="revenue-profit-chart" class="chart-container"></div>
+                    </div>
+                    <div class="dashboard-card p-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-6">Performa Kategori Produk</h3>
+                        <div id="category-chart" class="chart-container"></div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-1 space-y-8">
+                    <div class="dashboard-card p-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-6">Rekomendasi Restock</h3>
+                        <div id="restock-recommendations" class="space-y-3 max-h-80 overflow-y-auto"></div>
+                    </div>
+                    <div class="dashboard-card p-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-6">Produk Terlaris (Revenue)</h3>
+                        <div id="top-products" class="space-y-3"></div>
+                    </div>
+                    <div class="dashboard-card p-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-6">Peringatan & Notifikasi</h3>
+                        <div id="alerts-container" class="space-y-3"></div>
+                    </div>
+                    <div class="dashboard-card p-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-6">Tindakan Cepat</h3>
+                        <div class="space-y-3">
+                            <button class="btn-primary w-full" onclick="generateFullReport()">Generate Full Report</button>
+                            <button class="btn-secondary w-full" onclick="downloadFinancialData()">Download Financial Data</button>
+                            <button class="btn-secondary w-full" onclick="scheduleReport()">Schedule Weekly Report</button>
+                            <button class="btn-secondary w-full" onclick="comparePerformance()">Compare Performance</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-card p-6 mt-8">
+                <h3 class="text-xl font-semibold text-gray-800 mb-6">Overview Inventori</h3>
+                <div id="inventory-overview-chart" class="chart-container"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+                <div class="dashboard-card p-6">
+                    <h4 class="text-lg font-semibold text-gray-800 mb-4">Revenue Breakdown</h4>
+                    <div id="revenue-breakdown-chart" class="chart-container-small"></div>
+                </div>
+                <div class="dashboard-card p-6">
+                    <h4 class="text-lg font-semibold text-gray-800 mb-4">Cost Analysis</h4>
+                    <div id="cost-analysis-chart" class="chart-container-small"></div>
+                </div>
+                <div class="dashboard-card p-6">
+                    <h4 class="text-lg font-semibold text-gray-800 mb-4">Growth Metrics</h4>
+                    <div id="growth-metrics-chart" class="chart-container-small"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let dashboardData = {};
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initDarkMode();
+            initializeDashboard();
+            loadAllCharts(); // Panggil semua chart saat load
+            loadRecommendations();
+            loadTopProducts();
+            loadAlerts();
+        });
+
+        // Dark Mode Logic
+        let isDarkMode = localStorage.getItem('darkMode') === 'true';
+        function initDarkMode() { if (isDarkMode) { document.body.classList.add('dark-mode'); updateDarkModeIcon(true); } else { updateDarkModeIcon(false); } }
+        function toggleDarkMode() { isDarkMode = !isDarkMode; document.body.classList.toggle('dark-mode'); localStorage.setItem('darkMode', isDarkMode); updateDarkModeIcon(isDarkMode); loadAllCharts(); /* Reload chart agar warna menyesuaikan */ }
+        function updateDarkModeIcon(isDark) { const icon = document.getElementById('toggle-icon'); icon.innerHTML = isDark ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>' : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>'; }
+
+        function initializeDashboard() {
+            dashboardData = {
+                totalRevenue: 28500000,
+                totalTransactions: 1247,
+                avgTransaction: 22800,
+                profitMargin: 18.5,
+                salesData: [
+                    { date: '2025-01-01', sales: 2500000, profit: 450000 },
+                    { date: '2025-01-02', sales: 3200000, profit: 580000 },
+                    { date: '2025-01-03', sales: 2800000, profit: 510000 },
+                    { date: '2025-01-04', sales: 4100000, profit: 750000 },
+                    { date: '2025-01-05', sales: 3900000, profit: 700000 },
+                    { date: '2025-01-06', sales: 4500000, profit: 820000 },
+                    { date: '2025-01-07', sales: 3800000, profit: 680000 },
+                    { date: '2025-01-08', sales: 4200000, profit: 760000 },
+                    { date: '2025-01-09', sales: 3600000, profit: 650000 },
+                    { date: '2025-01-10', sales: 4800000, profit: 870000 },
+                    { date: '2025-01-11', sales: 5200000, profit: 950000 },
+                    { date: '2025-01-12', sales: 4600000, profit: 830000 },
+                    { date: '2025-01-13', sales: 5400000, profit: 980000 },
+                    { date: '2025-01-14', sales: 4900000, profit: 880000 },
+                    { date: '2025-01-15', sales: 5600000, profit: 1010000 }
+                ],
+                categoryData: [
+                    { name: 'Sembako', value: 45 },
+                    { name: 'Makanan', value: 25 },
+                    { name: 'Minuman', value: 20 },
+                    { name: 'Kebersihan', value: 10 }
+                ],
+                restockItems: [
+                    { name: 'Beras 5kg', currentStock: 40, minStock: 50, recommendedOrder: 20 },
+                    { name: 'Sabun Lifebuoy', currentStock: 80, minStock: 100, recommendedOrder: 50 },
+                    { name: 'Minyak Goreng 1L', currentStock: 90, minStock: 100, recommendedOrder: 30 }
+                ],
+                topProducts: [
+                    { name: 'Beras 5kg', sales: 50, revenue: 2250000 },
+                    { name: 'Minyak Goreng 1L', sales: 80, revenue: 1440000 },
+                    { name: 'Indomie Goreng', sales: 200, revenue: 700000 }
+                ]
+            };
+            updateKPICards();
+        }
+
+        function updateKPICards() {
+            document.getElementById('total-revenue').textContent = formatCurrency(dashboardData.totalRevenue);
+            document.getElementById('total-transactions').textContent = dashboardData.totalTransactions.toLocaleString();
+            document.getElementById('avg-transaction').textContent = formatCurrency(dashboardData.avgTransaction);
+            document.getElementById('profit-margin').textContent = dashboardData.profitMargin + '%';
+        }
+
+        // --- FUNGSI LOAD CHART LENGKAP ---
+        function loadAllCharts() {
+            loadSalesChart();
+            loadRevenueProfitChart();
+            loadCategoryChart();
+            loadInventoryOverviewChart();
+            loadRevenueBreakdownChart();
+            loadCostAnalysisChart();
+            loadGrowthMetricsChart();
+        }
+
+        // 1. Sales Chart
+        function loadSalesChart() {
+            const chartDom = document.getElementById('sales-chart');
+            const myChart = echarts.init(chartDom);
+            const dates = dashboardData.salesData.map(d => d.date);
+            const sales = dashboardData.salesData.map(d => d.sales);
+            const option = {
+                title: { text: 'Penjualan Harian', left: 'center', textStyle: { color: isDarkMode ? '#fff' : '#333' } },
+                tooltip: { trigger: 'axis' },
+                xAxis: { type: 'category', data: dates, axisLabel: { color: isDarkMode ? '#ccc' : '#333' } },
+                yAxis: { type: 'value', axisLabel: { color: isDarkMode ? '#ccc' : '#333' } },
+                series: [{ data: sales, type: 'line', smooth: true, itemStyle: { color: '#FF6B35' } }]
+            };
+            myChart.setOption(option);
+        }
+
+        // 2. Revenue vs Profit Chart
+        function loadRevenueProfitChart() {
+            const chartDom = document.getElementById('revenue-profit-chart');
+            const myChart = echarts.init(chartDom);
+            const dates = dashboardData.salesData.map(d => d.date);
+            const revenues = dashboardData.salesData.map(d => d.sales);
+            const profits = dashboardData.salesData.map(d => d.profit);
+            const option = {
+                tooltip: { trigger: 'axis' },
+                legend: { data: ['Pendapatan', 'Laba'], bottom: 0, textStyle: { color: isDarkMode ? '#ccc' : '#333' } },
+                xAxis: { type: 'category', data: dates, axisLabel: { color: isDarkMode ? '#ccc' : '#333' } },
+                yAxis: { type: 'value', axisLabel: { color: isDarkMode ? '#ccc' : '#333' } },
+                series: [
+                    { name: 'Pendapatan', type: 'bar', data: revenues, itemStyle: { color: '#FF6B35' } },
+                    { name: 'Laba', type: 'line', data: profits, itemStyle: { color: '#27AE60' } }
+                ]
+            };
+            myChart.setOption(option);
+        }
+
+        // 3. Category Chart
+        function loadCategoryChart() {
+            const chartDom = document.getElementById('category-chart');
+            const myChart = echarts.init(chartDom);
+            const option = {
+                tooltip: { trigger: 'item' },
+                series: [{ 
+                    name: 'Kategori', type: 'pie', radius: '60%', 
+                    data: dashboardData.categoryData,
+                    itemStyle: { color: (p) => ['#E67E22', '#F1C40F', '#3498DB', '#2ECC71'][p.dataIndex] }
+                }]
+            };
+            myChart.setOption(option);
+        }
+
+        // 4. Inventory Overview Chart (Bar Chart)
+        function loadInventoryOverviewChart() {
+            const chartDom = document.getElementById('inventory-overview-chart');
+            const myChart = echarts.init(chartDom);
+            const option = {
+                tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+                xAxis: { type: 'category', data: ['Aman', 'Menipis', 'Habis'], axisLabel: { color: isDarkMode ? '#ccc' : '#333' } },
+                yAxis: { type: 'value', axisLabel: { color: isDarkMode ? '#ccc' : '#333' } },
+                series: [{
+                    data: [
+                        { value: 12, itemStyle: { color: '#27AE60' } }, 
+                        { value: 5, itemStyle: { color: '#F39C12' } }, 
+                        { value: 2, itemStyle: { color: '#E74C3C' } }
+                    ],
+                    type: 'bar',
+                    barWidth: '50%'
+                }]
+            };
+            myChart.setOption(option);
+        }
+
+        // 5. Revenue Breakdown Chart (Pie Chart)
+        function loadRevenueBreakdownChart() {
+            const chartDom = document.getElementById('revenue-breakdown-chart');
+            const myChart = echarts.init(chartDom);
+            const option = {
+                tooltip: { trigger: 'item' },
+                series: [{
+                    name: 'Revenue',
+                    type: 'pie',
+                    radius: ['40%', '70%'],
+                    data: [
+                        { value: 75, name: 'Langsung' },
+                        { value: 20, name: 'Online' },
+                        { value: 5, name: 'Grosir' }
+                    ],
+                    itemStyle: {
+                        color: (params) => ['#FF6B35', '#FFB366', '#2C3E50'][params.dataIndex]
+                    }
+                }]
+            };
+            myChart.setOption(option);
+        }
+
+        // 6. Cost Analysis Chart (Pie Chart)
+        function loadCostAnalysisChart() {
+            const chartDom = document.getElementById('cost-analysis-chart');
+            const myChart = echarts.init(chartDom);
+            const option = {
+                tooltip: { trigger: 'item' },
+                series: [{
+                    name: 'Cost',
+                    type: 'pie',
+                    radius: '60%',
+                    data: [
+                        { value: 60, name: 'COGS' },
+                        { value: 25, name: 'Gaji' },
+                        { value: 15, name: 'Ops' }
+                    ],
+                    itemStyle: {
+                        color: (params) => ['#E74C3C', '#F39C12', '#95A5A6'][params.dataIndex]
+                    }
+                }]
+            };
+            myChart.setOption(option);
+        }
+
+        // 7. Growth Metrics Chart (Bar Chart)
+        function loadGrowthMetricsChart() {
+            const chartDom = document.getElementById('growth-metrics-chart');
+            const myChart = echarts.init(chartDom);
+            const option = {
+                tooltip: { trigger: 'axis' },
+                xAxis: { type: 'category', data: ['Bln Lalu', 'Bln Ini'], axisLabel: { color: isDarkMode ? '#ccc' : '#333' } },
+                yAxis: { type: 'value', axisLabel: { formatter: '{value}%', color: isDarkMode ? '#ccc' : '#333' } },
+                series: [{
+                    data: [15, 22],
+                    type: 'bar',
+                    itemStyle: { color: '#27AE60' },
+                    barWidth: '40%'
+                }]
+            };
+            myChart.setOption(option);
+        }
+
+        function loadRecommendations() {
+            const container = document.getElementById('restock-recommendations');
+            container.innerHTML = dashboardData.restockItems.map(item => `
+                <div class="restock-item">
+                    <div class="flex justify-between items-start mb-2">
+                        <h5 class="font-semibold text-gray-800 text-sm">${item.name}</h5>
+                        <span class="performance-indicator performance-down">Rendah</span>
+                    </div>
+                    <div class="text-xs text-gray-600 mb-2">
+                        Stok: ${item.currentStock} | Min: ${item.minStock}
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs text-gray-700">Rekomendasi:</span>
+                        <span class="font-semibold text-orange-600 text-sm">${item.recommendedOrder} unit</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadTopProducts() {
+            const container = document.getElementById('top-products');
+            container.innerHTML = dashboardData.topProducts.map((product, index) => `
+                <div class="product-performance-item">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                            <span class="text-orange-600 font-bold text-sm">${index + 1}</span>
+                        </div>
+                        <div>
+                            <h5 class="font-semibold text-gray-800 text-sm">${product.name}</h5>
+                            <p class="text-xs text-gray-600">${product.sales} terjual</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="font-semibold text-gray-800 text-sm">${formatCurrency(product.revenue)}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadAlerts() {
+            const container = document.getElementById('alerts-container');
+            const alerts = [
+                { type: 'warning', title: 'Stok Rendah', message: '3 produk butuh restock' },
+                { type: 'error', title: 'Keamanan', message: 'Login gagal user Budi' }
+            ];
+            container.innerHTML = alerts.map(alert => `
+                <div class="${alert.type === 'warning' ? 'alert-card' : 'alert-card'}">
+                    <h5 class="font-semibold text-gray-800 text-sm">${alert.title}</h5>
+                    <p class="text-xs text-gray-600">${alert.message}</p>
+                </div>
+            `).join('');
+        }
+
+        function updateDashboard() { showNotification('Dashboard updated', 'success'); }
+        function exportDashboard() { showNotification('Data exported', 'success'); }
+        function generateFullReport() { showNotification('Report generated', 'success'); }
+        function downloadFinancialData() { showNotification('Data downloaded', 'success'); }
+        function scheduleReport() { showNotification('Report scheduled', 'success'); }
+        function comparePerformance() { showNotification('Comparing performance...', 'info'); }
+        function updateSalesChart() { loadSalesChart(); showNotification('Chart updated', 'info'); }
+        
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm ${type === 'success' ? 'bg-green-500' : 'bg-blue-500'} text-white`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            setTimeout(() => document.body.removeChild(notification), 3000);
+        }
+    </script>
+</body>
+</html>

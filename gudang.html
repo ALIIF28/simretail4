@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Staf Gudang - RetailSIM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.0/echarts.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-orange: #FF6B35;
+            --secondary-coral: #FF8E53;
+            --deep-charcoal: #2C3E50;
+            --medium-gray: #7F8C8D;
+            --light-gray: #ECF0F1;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        /* --- DARK MODE STYLES (GUDANG) --- */
+        body.dark-mode {
+            background: #1a1a1a;
+            color: #f3f4f6;
+        }
+
+        body.dark-mode .navbar {
+            background: rgba(45, 45, 45, 0.95);
+            border-bottom-color: #404040;
+        }
+
+        body.dark-mode .dashboard-card,
+        body.dark-mode .modal-content {
+            background-color: #2d2d2d;
+            color: #f3f4f6;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        body.dark-mode .inventory-item {
+            background-color: #2d2d2d;
+            color: #f3f4f6;
+        }
+
+        body.dark-mode .text-gray-800 { color: #f3f4f6; }
+        body.dark-mode .text-gray-600 { color: #9ca3af; }
+        
+        body.dark-mode .form-input,
+        body.dark-mode select,
+        body.dark-mode textarea {
+            background-color: #374151;
+            color: white;
+            border-color: #4b5563;
+        }
+
+        body.dark-mode .btn-secondary {
+            background-color: #374151;
+            color: white;
+            border-color: #4b5563;
+        }
+
+        body.dark-mode .timeline-item::after {
+            background: #4b5563;
+        }
+
+        /* Standard Styles */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .dashboard-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        
+        .inventory-item {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            border-left: 4px solid var(--primary-orange);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .form-input {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 0.75rem;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-orange) 0%, var(--secondary-coral) 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: var(--primary-orange);
+            border: 2px solid var(--primary-orange);
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .role-badge {
+            background: linear-gradient(135deg, var(--primary-orange) 0%, var(--secondary-coral) 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-left: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.5rem;
+            width: 12px;
+            height: 12px;
+            background: var(--primary-orange);
+            border-radius: 50%;
+        }
+        
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            left: 5px;
+            top: 1.25rem;
+            width: 2px;
+            height: calc(100% + 0.5rem);
+            background: #e9ecef;
+        }
+        
+        .timeline-item:last-child::after { display: none; }
+    </style>
+</head>
+<body>
+    <nav class="navbar fixed top-0 left-0 right-0 z-50 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <a href="index.html" class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-lg">SI</span>
+                    </div>
+                    <span class="text-xl font-semibold text-gray-800">RetailSIM</span>
+                </a>
+            </div>
+            
+            <div class="flex items-center space-x-6">
+                <div class="role-badge">Staf Gudang</div>
+                <div class="text-sm text-gray-600">
+                    <span class="font-medium">Rafli</span>
+                    <div class="text-xs">Aktif</div>
+                </div>
+                <button class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition" onclick="toggleDarkMode()" id="dark-mode-toggle">
+                    <svg class="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" id="toggle-icon">
+                        </svg>
+                </button>
+                <a href="index.html" class="text-gray-600 hover:text-orange-500 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="pt-24 px-6 pb-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">Dashboard Staf Gudang</h1>
+                <p class="text-gray-600">Modul Stock Entry</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="dashboard-card p-6">
+                    <p class="text-sm text-gray-600">Total Produk</p>
+                    <p class="text-2xl font-bold text-gray-800" id="total-products">0</p>
+                </div>
+                <div class="dashboard-card p-6">
+                    <p class="text-sm text-gray-600">Stok Aman</p>
+                    <p class="text-2xl font-bold text-green-600" id="safe-stock">0</p>
+                </div>
+                </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2">
+                    <div class="dashboard-card p-6 mb-8">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-6">Daftar Inventori</h3>
+                        <div id="inventory-grid" class="inventory-grid"></div>
+                    </div>
+                    
+                    <div class="dashboard-card p-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-6">Grafik Pergerakan Stok</h3>
+                        <div id="stock-chart" style="height: 300px;"></div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-1">
+                    <div class="dashboard-card p-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-6">Form Pencatatan Stok</h3>
+                        <form id="stock-form" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Produk</label>
+                                <select id="product-select" class="form-input" required><option value="">Pilih Produk</option></select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Jenis Transaksi</label>
+                                <select id="transaction-type" class="form-input" required>
+                                    <option value="in">Masuk</option>
+                                    <option value="out">Keluar</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Jumlah</label>
+                                <input type="number" id="quantity" class="form-input" required>
+                            </div>
+                            <button type="submit" class="btn-primary w-full">Simpan</button>
+                        </form>
+                    </div>
+
+                    <div class="dashboard-card p-6 mt-8">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-6">Riwayat</h3>
+                        <div id="stock-timeline"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+   <script>
+    let inventory = [];
+    let stockHistory = [];
+
+    document.addEventListener('DOMContentLoaded', function() {
+        initDarkMode();
+        loadInventory();
+        initializeStockChart();
+        initializeForm();
+        updateStats();
+    });
+
+    // Dark Mode Logic (Sama seperti sebelumnya) ...
+    let isDarkMode = localStorage.getItem('darkMode') === 'true';
+    function initDarkMode() { if (isDarkMode) { document.body.classList.add('dark-mode'); updateDarkModeIcon(true); } else { updateDarkModeIcon(false); } }
+    function toggleDarkMode() { isDarkMode = !isDarkMode; document.body.classList.toggle('dark-mode'); localStorage.setItem('darkMode', isDarkMode); updateDarkModeIcon(isDarkMode); }
+    function updateDarkModeIcon(isDark) { const icon = document.getElementById('toggle-icon'); icon.innerHTML = isDark ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>' : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>'; }
+
+    // --- GUDANG LOGIC (DATA DISAMAKAN) ---
+    function loadInventory() {
+        // Data Sama dengan Kasir
+        inventory = [
+            { id: 1, name: 'Indomie Goreng', stock: 150, minStock: 20 },
+            { id: 2, name: 'Teh Botol Sosro', stock: 200, minStock: 30 },
+            { id: 3, name: 'Sabun Lifebuoy', stock: 80, minStock: 10 },
+            { id: 4, name: 'Beras 5kg', stock: 40, minStock: 5 },
+            { id: 5, name: 'Minyak Goreng 1L', stock: 90, minStock: 15 }
+        ];
+        renderInventory(inventory);
+        populateProductSelect();
+        
+        // Load Dummy History yang Sesuai
+        const timeline = document.getElementById('stock-timeline');
+        timeline.innerHTML = `
+            <div class="timeline-item">
+                <p class="text-sm text-gray-800 font-medium">Beras 5kg (Keluar)</p>
+                <p class="text-xs text-gray-500">10:00 - 5 unit</p>
+            </div>
+            <div class="timeline-item">
+                <p class="text-sm text-gray-800 font-medium">Indomie Goreng (Masuk)</p>
+                <p class="text-xs text-gray-500">08:30 - 50 unit</p>
+            </div>
+        `;
+    }
+
+    function renderInventory(items) {
+        const grid = document.getElementById('inventory-grid');
+        grid.innerHTML = '';
+        items.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'inventory-item';
+            div.innerHTML = `
+                <h4 class="font-semibold text-gray-800">${item.name}</h4>
+                <div class="flex justify-between mt-2">
+                    <span class="text-sm text-gray-600">Stok:</span>
+                    <span class="font-medium ${item.stock < item.minStock ? 'text-red-500' : 'text-green-600'}">${item.stock}</span>
+                </div>
+                <div class="text-xs text-gray-400 mt-1">Min: ${item.minStock}</div>
+            `;
+            grid.appendChild(div);
+        });
+    }
+
+    function populateProductSelect() {
+        const select = document.getElementById('product-select');
+        select.innerHTML = '<option value="">Pilih Produk</option>';
+        inventory.forEach(item => {
+            const opt = document.createElement('option');
+            opt.value = item.id;
+            opt.textContent = item.name;
+            select.appendChild(opt);
+        });
+    }
+
+    function initializeForm() {
+        document.getElementById('stock-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const qty = parseInt(document.getElementById('quantity').value);
+            const type = document.getElementById('transaction-type').value;
+            const prodId = document.getElementById('product-select').value;
+            
+            if (!prodId) { alert('Silakan pilih produk'); return; }
+            const prod = inventory.find(i => i.id == prodId);
+            
+            if(prod) {
+                if(type === 'in') prod.stock += qty;
+                else {
+                    if(prod.stock >= qty) prod.stock -= qty;
+                    else { alert('Stok tidak cukup!'); return; }
+                }
+                
+                renderInventory(inventory);
+                updateStats();
+                alert('Transaksi Berhasil');
+                
+                // Add new history entry to top
+                const timeline = document.getElementById('stock-timeline');
+                const historyItem = document.createElement('div');
+                historyItem.className = 'timeline-item';
+                historyItem.innerHTML = `
+                    <p class="text-sm text-gray-800 font-medium">${prod.name} (${type === 'in' ? 'Masuk' : 'Keluar'})</p>
+                    <p class="text-xs text-gray-500">${new Date().toLocaleTimeString()} - ${qty} unit</p>
+                `;
+                timeline.insertBefore(historyItem, timeline.firstChild);
+                
+                document.getElementById('quantity').value = '';
+            }
+        });
+    }
+
+    function updateStats() {
+        document.getElementById('total-products').textContent = inventory.length;
+        document.getElementById('safe-stock').textContent = inventory.filter(i => i.stock > i.minStock).length;
+    }
+
+    function initializeStockChart() {
+        const chartDom = document.getElementById('stock-chart');
+        const myChart = echarts.init(chartDom);
+        const option = {
+            xAxis: { type: 'category', data: ['Sen', 'Sel', 'Rab', 'Kam', 'Jum'] },
+            yAxis: { type: 'value' },
+            series: [
+                { data: [50, 20, 30, 10, 40], type: 'bar', name: 'Masuk', itemStyle: { color: '#27AE60' } },
+                { data: [30, 10, 20, 5, 15], type: 'bar', name: 'Keluar', itemStyle: { color: '#E74C3C' } }
+            ]
+        };
+        myChart.setOption(option);
+    }
+    </script>
+</body>
+</html>
+

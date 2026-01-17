@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin - RetailSIM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.0/echarts.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-orange: #FF6B35;
+            --secondary-coral: #FF8E53;
+            --deep-charcoal: #2C3E50;
+            --medium-gray: #7F8C8D;
+            --light-gray: #ECF0F1;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        /* --- DARK MODE STYLES (ADMIN) --- */
+        body.dark-mode {
+            background: #1a1a1a;
+            color: #f3f4f6;
+        }
+
+        body.dark-mode .navbar {
+            background: rgba(45, 45, 45, 0.95);
+            border-bottom-color: #404040;
+        }
+
+        body.dark-mode .dashboard-card,
+        body.dark-mode .modal-content, 
+        body.dark-mode .bulk-actions {
+            background-color: #2d2d2d;
+            color: #f3f4f6;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        body.dark-mode .text-gray-800 { color: #f3f4f6; }
+        body.dark-mode .text-gray-700 { color: #e5e7eb; }
+        body.dark-mode .text-gray-600 { color: #9ca3af; }
+
+        /* Dark Mode: Nav Tabs */
+        body.dark-mode .nav-tabs-container {
+            background-color: #1f2937 !important;
+        }
+
+        /* Dark Mode: Table */
+        body.dark-mode .data-table th {
+            background-color: #374151 !important;
+            color: #f3f4f6;
+            border-bottom-color: #4b5563;
+        }
+
+        body.dark-mode .data-table td {
+            border-bottom-color: #404040;
+            background-color: #2d2d2d;
+        }
+
+        body.dark-mode .data-table tbody tr:hover td {
+            background-color: #374151;
+        }
+
+        body.dark-mode .form-input,
+        body.dark-mode select {
+            background-color: #374151;
+            border-color: #4b5563;
+            color: white;
+        }
+
+        body.dark-mode .verification-panel {
+            background: linear-gradient(135deg, #2d2d2d 0%, #1f1f1f 100%);
+            border-color: var(--primary-orange);
+        }
+
+        body.dark-mode .tab-button {
+            color: #9ca3af;
+        }
+        
+        body.dark-mode .tab-button.active {
+            color: white;
+        }
+
+        body.dark-mode .btn-secondary {
+            background-color: #374151;
+            color: white;
+            border-color: #4b5563;
+        }
+        
+        body.dark-mode .btn-secondary:hover {
+            background-color: var(--primary-orange);
+            border-color: var(--primary-orange);
+        }
+
+        /* --- STANDARD STYLES (LIGHT MODE - FIXED TO WHITE) --- */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .dashboard-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        /* NAV TABS (FIXED WHITE) */
+        .nav-tabs-container {
+            background-color: #ffffff !important;
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            transition: background-color 0.3s ease;
+        }
+        
+        /* TABLE STYLES (FIXED WHITE) */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .data-table th,
+        .data-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .data-table th {
+            background-color: #ffffff !important;
+            font-weight: 600;
+            color: var(--deep-charcoal);
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .data-table td {
+            background-color: #ffffff;
+        }
+        
+        .data-table tbody tr:hover td {
+            background-color: #f8f9fa;
+        }
+        
+        /* Other Styles */
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-completed { background: #d4edda; color: #155724; }
+        .status-verified { background: #cce5ff; color: #004085; }
+        .status-inactive { background: #f8d7da; color: #721c24; }
+        
+        .form-input {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 0.75rem;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-orange) 0%, var(--secondary-coral) 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: var(--primary-orange);
+            border: 2px solid var(--primary-orange);
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+        }
+        
+        .btn-secondary:hover {
+            background: var(--primary-orange);
+            color: white;
+        }
+        
+        .role-badge {
+            background: linear-gradient(135deg, var(--primary-orange) 0%, var(--secondary-coral) 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        
+        .modal-overlay {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            max-width: 600px;
+            margin: 2rem;
+            padding: 2rem;
+        }
+        
+        .tab-button {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            background: transparent;
+            color: var(--medium-gray);
+        }
+        
+        .tab-button.active {
+            background: var(--primary-orange);
+            color: white;
+        }
+        
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        .verification-panel {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border-left: 4px solid var(--primary-orange);
+        }
+        
+        .bulk-actions {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar fixed top-0 left-0 right-0 z-50 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <a href="index.html" class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-lg">SI</span>
+                    </div>
+                    <span class="text-xl font-semibold text-gray-800">RetailSIM</span>
+                </a>
+            </div>
+            
+            <div class="flex items-center space-x-6">
+                <div class="role-badge">Admin</div>
+                <div class="text-sm text-gray-600">
+                    <span class="font-medium">Okta</span>
+                    <div class="text-xs">Aktif</div>
+                </div>
+                <button class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition" onclick="toggleDarkMode()" id="dark-mode-toggle">
+                    <svg class="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" id="toggle-icon">
+                        </svg>
+                </button>
+                <a href="index.html" class="text-gray-600 hover:text-orange-500 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="pt-24 px-6 pb-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">Dashboard Admin</h1>
+                <p class="text-gray-600">Fitur Jurnal Otomatis dan verifikasi transaksi dengan data bersih</p>
+            </div>
+
+            <div class="flex flex-wrap gap-2 mb-8 nav-tabs-container">
+                <button class="tab-button active" onclick="switchTab('verification')" id="tab-verification">Ringkasan</button>
+                <button class="tab-button" onclick="switchTab('users')" id="tab-users">Manajemen User</button>
+                <button class="tab-button" onclick="switchTab('logs')" id="tab-logs">System Logs</button>
+                <button class="tab-button" onclick="switchTab('reports')" id="tab-reports">Laporan</button>
+            </div>
+
+            <div id="content-verification" class="tab-content active">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2">
+                        <div class="dashboard-card p-6">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-6">Ringkasan Transaksi</h3>
+                            <div id="transaction-chart" style="height: 300px;"></div>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-1">
+                        <div class="dashboard-card p-6 sticky top-28">
+                            <div class="verification-panel">
+                                <h4 class="text-lg font-semibold text-gray-800 mb-4">Quick Stats</h4>
+                                <div class="space-y-4">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-gray-600">Total Transaksi</span>
+                                        <span class="font-semibold text-gray-800" id="total-transactions">0</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-gray-600">Pending</span>
+                                        <span class="font-semibold text-orange-600" id="pending-transactions">0</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-gray-600">Terverifikasi</span>
+                                        <span class="font-semibold text-green-600" id="verified-transactions">0</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-gray-600">Total Nilai</span>
+                                        <span class="font-semibold text-gray-800" id="total-value">Rp 0</span>
+                                    </div>
+                                </div>
+                                <div class="mt-6 pt-6 border-t border-gray-300">
+                                    <h5 class="font-semibold text-gray-800 mb-3">Tindakan Cepat</h5>
+                                    <div class="space-y-2">
+                                        <button class="btn-secondary w-full text-sm" onclick="generateReport()">Generate Report</button>
+                                        <button class="btn-secondary w-full text-sm" onclick="backupData()">Backup Data</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="content-users" class="tab-content">
+                <div class="dashboard-card p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-semibold text-gray-800">Manajemen User</h3>
+                        <button class="btn-primary" onclick="showAddUserModal()">Tambah User</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nama</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                    <th>Terakhir Login</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-table">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="content-logs" class="tab-content">
+                <div class="dashboard-card p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-semibold text-gray-800">System Logs</h3>
+                        <div class="flex space-x-2">
+                            <select id="log-filter" class="form-input w-32">
+                                <option value="all">Semua</option>
+                                <option value="error">Error</option>
+                                <option value="warning">Warning</option>
+                                <option value="info">Info</option>
+                            </select>
+                            <button class="btn-secondary" onclick="filterLogs()">Filter</button>
+                        </div>
+                    </div>
+                    <div id="logs-container" class="max-h-96 overflow-y-auto">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>Level</th>
+                                    <th>Message</th>
+                                    <th>User</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2025-01-15 10:30:00</td>
+                                    <td><span class="status-badge bg-blue-100 text-blue-800">INFO</span></td>
+                                    <td>User login successful</td>
+                                    <td>Okta</td>
+                                </tr>
+                                <tr>
+                                    <td>2025-01-15 10:35:00</td>
+                                    <td><span class="status-badge bg-yellow-100 text-yellow-800">WARN</span></td>
+                                    <td>High memory usage</td>
+                                    <td>System</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="content-reports" class="tab-content">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="dashboard-card p-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-6">Generate Laporan</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Jenis Laporan</label>
+                                <select id="report-type" class="form-input">
+                                    <option value="transactions">Laporan Transaksi</option>
+                                    <option value="inventory">Laporan Inventori</option>
+                                    <option value="users">Laporan User</option>
+                                    <option value="financial">Laporan Keuangan</option>
+                                </select>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Mulai</label>
+                                    <input type="date" id="report-start-date" class="form-input" value="2025-01-01">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Selesai</label>
+                                    <input type="date" id="report-end-date" class="form-input" value="2025-01-15">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Format Export</label>
+                                <select id="report-format" class="form-input">
+                                    <option value="pdf">PDF</option>
+                                    <option value="excel">Excel</option>
+                                    <option value="csv">CSV</option>
+                                </select>
+                            </div>
+                            <button class="btn-primary w-full" onclick="generateReport()">Generate Laporan</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="add-user-modal" class="modal-overlay fixed inset-0 z-50 hidden flex items-center justify-center">
+        <div class="modal-content">
+            <h3 class="text-xl font-semibold text-gray-800 mb-6">Tambah User Baru</h3>
+            <form id="add-user-form" class="space-y-4">
+                <div><label class="block text-sm text-gray-700 mb-1">Nama</label><input type="text" class="form-input" required></div>
+                <div><label class="block text-sm text-gray-700 mb-1">Username</label><input type="text" class="form-input" required></div>
+                <div class="flex gap-4 mt-6">
+                    <button type="button" class="btn-secondary flex-1" onclick="closeAddUserModal()">Batal</button>
+                    <button type="submit" class="btn-primary flex-1">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // --- ADMIN JAVASCRIPT ---
+        let transactions = [];
+        let users = [];
+        let logs = [];
+        let selectedTransactions = [];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initDarkMode(); // Inisialisasi Dark Mode
+            loadTransactions();
+            loadUsers(); // Ini akan memanggil data dummy user
+            loadLogs();
+            loadTransactionChart();
+        });
+
+        // --- FITUR DARK MODE ---
+        let isDarkMode = localStorage.getItem('darkMode') === 'true';
+
+        function initDarkMode() {
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+                updateDarkModeIcon(true);
+            } else {
+                updateDarkModeIcon(false);
+            }
+        }
+
+        function toggleDarkMode() {
+            isDarkMode = !isDarkMode;
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', isDarkMode);
+            updateDarkModeIcon(isDarkMode);
+        }
+
+        function updateDarkModeIcon(isDark) {
+            const icon = document.getElementById('toggle-icon');
+            if (isDark) {
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>';
+            } else {
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>';
+            }
+        }
+
+        // --- FUNGSI ADMIN ---
+        
+        // 1. Load Dummy Users
+        function loadUsers() {
+            users = [
+                { id: 1, name: 'Okta', role: 'Admin', status: 'Active', last_login: '2025-01-15 08:00' },
+                { id: 2, name: 'Devi', role: 'Kasir', status: 'Active', last_login: '2025-01-15 08:30' },
+                { id: 3, name: 'Rafli', role: 'Gudang', status: 'Active', last_login: '2025-01-15 09:00' },
+                { id: 4, name: 'Alif', role: 'Owner', status: 'Active', last_login: '2025-01-14 17:00' },
+                { id: 5, name: 'Budi', role: 'Kasir', status: 'Inactive', last_login: '2025-01-10 10:00' }
+            ];
+            renderUsers();
+        }
+
+        function renderUsers() {
+            const tbody = document.getElementById('users-table');
+            tbody.innerHTML = '';
+            users.forEach(user => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${user.id}</td>
+                    <td>${user.name}</td>
+                    <td><span class="role-badge">${user.role}</span></td>
+                    <td><span class="status-badge ${user.status === 'Active' ? 'status-completed' : 'status-inactive'}">${user.status}</span></td>
+                    <td>${user.last_login}</td>
+                    <td>
+                        <button class="btn-secondary" onclick="alert('Edit user ${user.name}')">Edit</button>
+                        <button class="btn-secondary" style="border-color: #E74C3C; color: #E74C3C;" onclick="deleteUser(${user.id})">Hapus</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        function deleteUser(id) {
+            if(confirm('Yakin ingin menghapus user ini?')) {
+                users = users.filter(u => u.id !== id);
+                renderUsers();
+            }
+        }
+
+        function loadTransactions() {
+            // Data dummy transaksi
+            transactions = [
+                { id: 'TRX001', date: '2025-01-15', cashier: 'Devi', total: 17000, items: 4, status: 'completed' },
+                { id: 'TRX002', date: '2025-01-15', cashier: 'Devi', total: 63000, items: 2, status: 'pending' }
+            ];
+            updateTransactionStats();
+        }
+
+        function updateTransactionStats() {
+            document.getElementById('total-transactions').textContent = transactions.length;
+            document.getElementById('pending-transactions').textContent = transactions.filter(t => t.status === 'pending').length;
+            document.getElementById('verified-transactions').textContent = transactions.filter(t => t.status === 'verified').length;
+            document.getElementById('total-value').textContent = formatCurrency(transactions.reduce((s, t) => s + t.total, 0));
+        }
+
+        function loadTransactionChart() {
+            const chartDom = document.getElementById('transaction-chart');
+            const myChart = echarts.init(chartDom);
+            const option = {
+                xAxis: { type: 'category', data: ['Sen', 'Sel', 'Rab', 'Kam', 'Jum'] },
+                yAxis: { type: 'value' },
+                series: [{ data: [120, 200, 150, 80, 70], type: 'bar', itemStyle: { color: '#FF6B35' } }]
+            };
+            myChart.setOption(option);
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+            document.getElementById(`content-${tabName}`).classList.add('active');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(amount);
+        }
+
+        function loadLogs() {}
+        function showAddUserModal() { document.getElementById('add-user-modal').classList.remove('hidden'); }
+        function closeAddUserModal() { document.getElementById('add-user-modal').classList.add('hidden'); }
+    </script>
+</body>
+</html>

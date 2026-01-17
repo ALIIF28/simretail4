@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Kasir - RetailSIM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.18.0/matter.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-orange: #FF6B35;
+            --secondary-coral: #FF8E53;
+            --deep-charcoal: #2C3E50;
+            --medium-gray: #7F8C8D;
+            --light-gray: #ECF0F1;
+            --success-green: #27AE60;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        /* --- DARK MODE STYLES --- */
+        body.dark-mode { background: #1a1a1a; color: #f3f4f6; }
+        body.dark-mode .navbar { background: rgba(45, 45, 45, 0.95); border-bottom-color: #404040; }
+        body.dark-mode .pos-container, body.dark-mode .product-card, body.dark-mode .receipt-content { background-color: #2d2d2d; color: #f3f4f6; border-color: #404040; }
+        body.dark-mode .text-gray-800 { color: #f3f4f6; }
+        body.dark-mode .text-gray-600, body.dark-mode .text-gray-500 { color: #9ca3af; }
+        body.dark-mode .search-bar { background-color: #374151; color: white; border-color: #4b5563; }
+        body.dark-mode .cart-item { background-color: #374151; color: #f3f4f6; }
+        body.dark-mode .border-b, body.dark-mode .border-t { border-color: #404040; }
+        body.dark-mode .hover\:bg-gray-50:hover { background-color: #374151; }
+
+        /* Standard Styles */
+        .navbar { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(0, 0, 0, 0.1); }
+        .pos-container { background: white; border-radius: 16px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); }
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; max-height: 60vh; overflow-y: auto; }
+        .product-card { background: white; border-radius: 12px; padding: 1rem; cursor: pointer; transition: all 0.3s ease; border: 2px solid transparent; }
+        .product-card:hover { transform: translateY(-4px); box-shadow: 0 8px 25px rgba(255, 107, 53, 0.2); border-color: var(--primary-orange); }
+        .cart-item { background: #f8f9fa; border-radius: 8px; padding: 0.75rem; margin-bottom: 0.5rem; border-left: 4px solid var(--primary-orange); }
+        .cart-summary { background: linear-gradient(135deg, var(--primary-orange) 0%, var(--secondary-coral) 100%); color: white; border-radius: 12px; padding: 1.5rem; }
+        .search-bar { background: white; border: 2px solid #e9ecef; border-radius: 12px; padding: 0.75rem 1rem; transition: all 0.3s ease; }
+        .quantity-btn { width: 28px; height: 28px; border-radius: 50%; background: var(--primary-orange); color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .payment-btn { background: var(--success-green); color: white; border-radius: 12px; padding: 1rem; width: 100%; font-weight: 600; }
+        .role-badge { background: linear-gradient(135deg, var(--primary-orange) 0%, var(--secondary-coral) 100%); color: white; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.875rem; font-weight: 600; }
+        
+        .receipt-modal { background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); }
+        .receipt-content { background: white; border-radius: 12px; max-width: 400px; width: 100%; margin: 2rem; padding: 2rem; }
+    </style>
+</head>
+<body>
+    <nav class="navbar fixed top-0 left-0 right-0 z-50 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <a href="index.html" class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-lg">SI</span>
+                    </div>
+                    <span class="text-xl font-semibold text-gray-800">RetailSIM</span>
+                </a>
+            </div>
+            
+            <div class="flex items-center space-x-6">
+                <div class="role-badge">Kasir</div>
+                <div class="text-sm text-gray-600">
+                    <span class="font-medium">Devi</span>
+                    <div class="text-xs">Aktif</div>
+                </div>
+                <button class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition" onclick="toggleDarkMode()" id="dark-mode-toggle">
+                    <svg class="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" id="toggle-icon"></svg>
+                </button>
+                <a href="index.html" class="text-gray-600 hover:text-orange-500 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="pt-24 px-6 pb-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">Dashboard Kasir</h1>
+                <p class="text-gray-600">Sistem POS Touch-Screen</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2">
+                    <div class="pos-container p-6 mb-6">
+                        <div class="flex flex-col md:flex-row gap-4 mb-6">
+                            <div class="flex-1">
+                                <input type="text" id="product-search" class="search-bar w-full" placeholder="Cari produk...">
+                            </div>
+                        </div>
+                        <div class="mb-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Daftar Produk</h3>
+                            <div id="product-grid" class="product-grid"></div>
+                        </div>
+                    </div>
+
+                    <div class="pos-container p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Transaksi Terakhir</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead>
+                                    <tr class="border-b">
+                                        <th class="text-left py-2">ID</th>
+                                        <th class="text-left py-2">Waktu</th>
+                                        <th class="text-right py-2">Total</th>
+                                        <th class="text-center py-2">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="transaction-history"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-1">
+                    <div class="pos-container p-6 sticky top-28">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Keranjang</h3>
+                        <div id="cart-items" class="mb-6 max-h-64 overflow-y-auto"></div>
+                        <div class="cart-summary mb-6">
+                            <div class="flex justify-between items-center mb-2"><span>Subtotal:</span><span id="subtotal">Rp 0</span></div>
+                            <div class="flex justify-between items-center mb-2"><span>PPN (10%):</span><span id="tax">Rp 0</span></div>
+                            <div class="border-t border-white border-opacity-30 pt-2 mb-4">
+                                <div class="flex justify-between items-center text-lg font-bold"><span>Total:</span><span id="total">Rp 0</span></div>
+                            </div>
+                            <button class="payment-btn" onclick="processPayment()" id="payment-btn" disabled>Bayar</button>
+                        </div>
+                        <button class="w-full py-2 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 transition-colors" onclick="clearCart()">Kosongkan</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="receipt-modal" class="receipt-modal fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+        <div class="receipt-content shadow-2xl transform transition-all">
+            <div class="text-center mb-4 border-b pb-4">
+                <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800">Pembayaran Berhasil!</h3>
+                <p class="text-sm text-gray-500">RetailSIM Store</p>
+            </div>
+            
+            <div id="receipt-screen-details" class="mb-6 space-y-2">
+                </div>
+
+            <div class="flex gap-3">
+                <button onclick="generateReceiptPDF()" class="flex-1 bg-orange-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-orange-700 transition flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                    Cetak PDF
+                </button>
+                <button onclick="closeReceipt()" class="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded-lg font-medium hover:bg-gray-300 transition">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let cart = [];
+        let products = [];
+        let currentTransactionId = "";
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initDarkMode();
+            loadProducts();
+            loadTransactionHistory();
+            renderCart();
+        });
+
+        let isDarkMode = localStorage.getItem('darkMode') === 'true';
+        function initDarkMode() { if (isDarkMode) { document.body.classList.add('dark-mode'); updateDarkModeIcon(true); } else { updateDarkModeIcon(false); } }
+        function toggleDarkMode() { isDarkMode = !isDarkMode; document.body.classList.toggle('dark-mode'); localStorage.setItem('darkMode', isDarkMode); updateDarkModeIcon(isDarkMode); }
+        function updateDarkModeIcon(isDark) { const icon = document.getElementById('toggle-icon'); icon.innerHTML = isDark ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>' : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>'; }
+
+        function loadProducts() {
+            products = [
+                { id: 1, name: 'Indomie Goreng', price: 3500, stock: 150, image: 'resources/indomie-goreng.jpg' },
+                { id: 2, name: 'Teh Botol Sosro', price: 5000, stock: 200, image: 'resources/teh-sosro.jpg' },
+                { id: 3, name: 'Sabun Lifebuoy', price: 8000, stock: 80, image: 'resources/sabun-lifebuoy.jpg' },
+                { id: 4, name: 'Beras 5kg', price: 45000, stock: 40, image: 'resources/beras-5-kg.jpg' },
+                { id: 5, name: 'Minyak Goreng 1L', price: 18000, stock: 90, image: 'resources/minyak-bimoli.jpg' }
+            ];
+            renderProducts(products);
+        }
+
+        function renderProducts(items) {
+            const grid = document.getElementById('product-grid');
+            grid.innerHTML = '';
+            items.forEach(product => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.onclick = () => addToCart(product);
+                card.innerHTML = `
+                    <div class="mb-3 h-32 bg-gray-100 rounded-lg overflow-hidden">
+                        <img src="${product.image}" class="w-full h-full object-cover" onerror="this.src='data:image/svg+xml;utf8,<svg...>'">
+                    </div>
+                    <h4 class="font-semibold text-gray-800">${product.name}</h4>
+                    <div class="flex justify-between items-center mt-2">
+                        <span class="text-orange-600 font-bold">${formatCurrency(product.price)}</span>
+                        <span class="text-xs text-gray-500">Stok: ${product.stock}</span>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function addToCart(product) {
+            const existing = cart.find(i => i.id === product.id);
+            if (existing) { existing.quantity++; } else { cart.push({ ...product, quantity: 1 }); }
+            renderCart(); updateCartSummary();
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cart-items');
+            if (cart.length === 0) { container.innerHTML = '<div class="text-center text-gray-500 py-8">Keranjang Kosong</div>'; return; }
+            container.innerHTML = cart.map(item => `
+                <div class="cart-item">
+                    <div class="flex justify-between mb-2">
+                        <span class="text-sm font-medium text-gray-800">${item.name}</span>
+                        <span class="text-sm">${formatCurrency(item.price * item.quantity)}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs text-gray-500">${formatCurrency(item.price)} x ${item.quantity}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateCartSummary() {
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const tax = subtotal * 0.1;
+            const total = subtotal + tax;
+            document.getElementById('subtotal').textContent = formatCurrency(subtotal);
+            document.getElementById('tax').textContent = formatCurrency(tax);
+            document.getElementById('total').textContent = formatCurrency(total);
+            document.getElementById('payment-btn').disabled = cart.length === 0;
+        }
+
+        function clearCart() { cart = []; renderCart(); updateCartSummary(); }
+
+        function processPayment() {
+            const total = document.getElementById('total').textContent;
+            
+            // Generate Random ID Transaksi
+            const date = new Date();
+            currentTransactionId = "TRX" + date.getFullYear() + String(date.getMonth()+1).padStart(2, '0') + String(date.getDate()).padStart(2, '0') + "-" + Math.floor(1000 + Math.random() * 9000);
+
+            // Update UI Modal Preview
+            const detailsDiv = document.getElementById('receipt-screen-details');
+            detailsDiv.innerHTML = `
+                <div class="flex justify-between text-sm text-gray-600">
+                    <span>ID Transaksi:</span>
+                    <span class="font-bold">${currentTransactionId}</span>
+                </div>
+                <div class="flex justify-between text-sm text-gray-600">
+                    <span>Waktu:</span>
+                    <span>${date.toLocaleTimeString()}</span>
+                </div>
+                <div class="border-t border-dashed border-gray-300 my-2 pt-2">
+                    <div class="flex justify-between text-lg font-bold text-gray-800">
+                        <span>Total Bayar:</span>
+                        <span class="text-orange-600">${total}</span>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('receipt-modal').classList.remove('hidden');
+        }
+
+        // --- FUNGSI CETAK PDF ---
+        function generateReceiptPDF() {
+            const { jsPDF } = window.jspdf;
+            
+            // Ukuran kertas struk thermal 58mm (lebar 58mm, tinggi dinamis/auto)
+            const doc = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: [58, 120] // Lebar 58mm, Tinggi Estimasi
+            });
+
+            // Setting Font
+            doc.setFont("courier", "bold");
+            doc.setFontSize(10);
+            
+            // Header
+            let y = 10;
+            doc.text("RETAILSIM STORE", 29, y, { align: "center" });
+            y += 4;
+            doc.setFont("courier", "normal");
+            doc.setFontSize(8);
+            doc.text("Jl. Teknologi No. 123, Batam", 29, y, { align: "center" });
+            y += 4;
+            doc.text("--------------------------------", 29, y, { align: "center" });
+            y += 4;
+
+            // Info Transaksi
+            doc.text(`ID: ${currentTransactionId}`, 2, y);
+            y += 4;
+            doc.text(`Tgl: ${new Date().toLocaleString()}`, 2, y);
+            y += 4;
+            doc.text(`Kasir: Devi`, 2, y);
+            y += 4;
+            doc.text("--------------------------------", 29, y, { align: "center" });
+            y += 4;
+
+            // Item List
+            let subtotal = 0;
+            cart.forEach(item => {
+                const totalItem = item.price * item.quantity;
+                subtotal += totalItem;
+                
+                // Nama Produk
+                let name = item.name;
+                if (name.length > 20) name = name.substring(0, 20) + "...";
+                doc.text(name, 2, y);
+                y += 4;
+                
+                // Qty x Harga = Total
+                const line = `${item.quantity} x ${item.price.toLocaleString()} = ${totalItem.toLocaleString()}`;
+                doc.text(line, 56, y, { align: "right" });
+                y += 4;
+            });
+
+            // Totals
+            doc.text("--------------------------------", 29, y, { align: "center" });
+            y += 4;
+            
+            const tax = subtotal * 0.1;
+            const total = subtotal + tax;
+
+            doc.text("Subtotal:", 2, y);
+            doc.text(subtotal.toLocaleString(), 56, y, { align: "right" });
+            y += 4;
+
+            doc.text("PPN (10%):", 2, y);
+            doc.text(tax.toLocaleString(), 56, y, { align: "right" });
+            y += 4;
+
+            doc.setFont("courier", "bold");
+            doc.text("TOTAL:", 2, y);
+            doc.text(`Rp ${total.toLocaleString()}`, 56, y, { align: "right" });
+            y += 8;
+
+            // Footer
+            doc.setFont("courier", "normal");
+            doc.setFontSize(8);
+            doc.text("Terima Kasih", 29, y, { align: "center" });
+            y += 4;
+            doc.text("Barang yang dibeli", 29, y, { align: "center" });
+            y += 4;
+            doc.text("tidak dapat dikembalikan", 29, y, { align: "center" });
+
+            // Simpan PDF
+            doc.save(`Struk-${currentTransactionId}.pdf`);
+        }
+
+        function closeReceipt() {
+            document.getElementById('receipt-modal').classList.add('hidden');
+            clearCart();
+        }
+
+        function loadTransactionHistory() {
+            const container = document.getElementById('transaction-history');
+            container.innerHTML = `
+                <tr class="border-b hover:bg-gray-50 dark:hover:bg-gray-700"><td class="py-2">TRX001</td><td>10:30</td><td class="text-right">Rp 52.000</td><td class="text-center"><span class="bg-green-100 text-green-800 px-2 rounded-full text-xs">Selesai</span></td></tr>
+                <tr class="border-b hover:bg-gray-50 dark:hover:bg-gray-700"><td class="py-2">TRX002</td><td>11:15</td><td class="text-right">Rp 45.000</td><td class="text-center"><span class="bg-green-100 text-green-800 px-2 rounded-full text-xs">Selesai</span></td></tr>
+            `;
+        }
+
+        function formatCurrency(val) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val); }
+    </script>
+</body>
+</html>
