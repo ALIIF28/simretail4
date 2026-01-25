@@ -129,6 +129,10 @@
             border-color: var(--accent-gold);
             box-shadow: 0 0 0 3px rgba(255, 179, 102, 0.2);
         }
+
+        .dark-mode .form-input::placeholder {
+            color: #9ca3af;
+        }
         
         .btn-primary {
             background: linear-gradient(135deg, var(--primary-orange) 0%, var(--secondary-coral) 100%);
@@ -255,9 +259,8 @@
         }
         
         .role-icon {
-            width: 48px;
-            height: 48px;
-            margin: 0 auto 1rem;
+            width: 100%;
+            height: 100%;
             object-fit: contain;
         }
         
@@ -279,7 +282,41 @@
         .dark-mode .role-description {
             color: var(--dark-text);
         }
-        
+
+        /* Demo Accounts – gelap di dark mode */
+        .demo-account-card {
+            background: white;
+            color: #1f2937;
+            border: 1px solid #e5e7eb;
+        }
+
+        .dark-mode .demo-account-card {
+            background: var(--dark-card);
+            color: var(--dark-text);
+            border-color: var(--dark-border);
+        }
+
+        .dark-mode .demo-accounts-title {
+            color: var(--dark-text);
+        }
+
+        /* Wrapper ikon role – background gelap di dark mode */
+        .role-icon-wrap {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 1rem;
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f3f4f6;
+        }
+
+        .dark-mode .role-icon-wrap {
+            background: var(--dark-input);
+        }
+
         .footer {
             text-align: center;
             margin-top: 3rem;
@@ -372,25 +409,22 @@
             </form>
 
            <div class="text-center mb-6">
-                <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Demo Accounts:</p>
+                <p class="demo-accounts-title text-sm text-gray-500 mb-4">Demo Accounts:</p>
                 
                 <div class="grid grid-cols-2 gap-2 text-xs">
-                    <div class="bg-white text-gray-800 border border-gray-200 dark:bg-white dark:text-gray-800 dark:border-gray-200 p-2 rounded shadow-sm hover:shadow-md transition-shadow">
+                    <div class="demo-account-card p-2 rounded shadow-sm hover:shadow-md transition-shadow">
                         <div class="font-medium text-orange-500">Kasir</div>
                         <div>devi / password</div>
                     </div>
-                    
-                    <div class="bg-white text-gray-800 border border-gray-200 dark:bg-white dark:text-gray-800 dark:border-gray-200 p-2 rounded shadow-sm hover:shadow-md transition-shadow">
+                    <div class="demo-account-card p-2 rounded shadow-sm hover:shadow-md transition-shadow">
                         <div class="font-medium text-orange-500">Gudang</div>
                         <div>rafli / password</div>
                     </div>
-                    
-                    <div class="bg-white text-gray-800 border border-gray-200 dark:bg-white dark:text-gray-800 dark:border-gray-200 p-2 rounded shadow-sm hover:shadow-md transition-shadow">
+                    <div class="demo-account-card p-2 rounded shadow-sm hover:shadow-md transition-shadow">
                         <div class="font-medium text-orange-500">Admin</div>
                         <div>okta / password</div>
                     </div>
-                    
-                    <div class="bg-white text-gray-800 border border-gray-200 dark:bg-white dark:text-gray-800 dark:border-gray-200 p-2 rounded shadow-sm hover:shadow-md transition-shadow">
+                    <div class="demo-account-card p-2 rounded shadow-sm hover:shadow-md transition-shadow">
                         <div class="font-medium text-orange-500">Owner</div>
                         <div>alif / password</div>
                     </div>
@@ -399,25 +433,22 @@
 
             <div class="role-selector">
                 <div class="role-card" onclick="quickLogin('kasir')">
-                    <img src="resources/kasir-icon.png" alt="Kasir" class="role-icon">
+                    <div class="role-icon-wrap"><img src="resources/kasir-icon.png" alt="Kasir" class="role-icon"></div>
                     <div class="role-name">Kasir</div>
                     <div class="role-description">POS System</div>
                 </div>
-
                 <div class="role-card" onclick="quickLogin('gudang')">
-                    <img src="resources/gudang-icon.png" alt="Gudang" class="role-icon">
+                    <div class="role-icon-wrap"><img src="resources/gudang-icon.png" alt="Gudang" class="role-icon"></div>
                     <div class="role-name">Staf Gudang</div>
                     <div class="role-description">Stock Entry</div>
                 </div>
-
                 <div class="role-card" onclick="quickLogin('admin')">
-                    <img src="resources/admin-icon.png" alt="Admin" class="role-icon">
+                    <div class="role-icon-wrap"><img src="resources/admin-icon.png" alt="Admin" class="role-icon"></div>
                     <div class="role-name">Admin</div>
                     <div class="role-description">Verification</div>
                 </div>
-
                 <div class="role-card" onclick="quickLogin('owner')">
-                    <img src="resources/owner-icon.png" alt="Owner" class="role-icon">
+                    <div class="role-icon-wrap"><img src="resources/owner-icon.png" alt="Owner" class="role-icon"></div>
                     <div class="role-name">Owner</div>
                     <div class="role-description">Analytics</div>
                 </div>
