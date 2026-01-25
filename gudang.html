@@ -165,6 +165,9 @@
         }
         
         .timeline-item:last-child::after { display: none; }
+
+        #add-product-modal { display: none; }
+        #add-product-modal.show { display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
@@ -219,7 +222,15 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div class="lg:col-span-2">
                     <div class="dashboard-card p-6 mb-8">
-                        <h3 class="text-xl font-semibold text-gray-800 mb-6">Daftar Inventori</h3>
+                        <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+                            <h3 class="text-xl font-semibold text-gray-800">Daftar Inventori</h3>
+                            <button type="button" onclick="openAddProductModal()" class="btn-primary flex items-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                </svg>
+                                Menambah Produk
+                            </button>
+                        </div>
                         <div id="inventory-grid" class="inventory-grid"></div>
                     </div>
                     
@@ -261,6 +272,74 @@
         </div>
     </div>
 
+    <!-- Modal Menambah Produk -->
+    <div id="add-product-modal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm">
+        <div class="modal-content rounded-2xl shadow-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-semibold text-gray-800">Menambah Produk</h3>
+                    <button type="button" onclick="closeAddProductModal()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <form id="add-product-form" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nama Produk</label>
+                        <input type="text" id="new-product-name" class="form-input" placeholder="Contoh: Indomie Goreng" required>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Stok Awal</label>
+                            <input type="number" id="new-product-stock" class="form-input" min="0" placeholder="0" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Stok Minimum</label>
+                            <input type="number" id="new-product-minstock" class="form-input" min="0" placeholder="0" required>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Harga (Rp)</label>
+                        <input type="number" id="new-product-price" class="form-input" min="0" placeholder="Contoh: 3500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Kategori</label>
+                        <select id="new-product-category" class="form-input">
+                            <option value="Makanan">Makanan</option>
+                            <option value="Minuman">Minuman</option>
+                            <option value="Sembako">Sembako</option>
+                            <option value="Kebersihan">Kebersihan</option>
+                            <option value="Lainnya">Lainnya</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Gambar Produk</label>
+                        <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 text-center transition hover:border-orange-500/50">
+                            <input type="file" id="new-product-image" class="hidden" accept="image/*">
+                            <div id="image-upload-area" class="cursor-pointer" onclick="document.getElementById('new-product-image').click()">
+                                <div id="image-preview" class="hidden mb-2">
+                                    <img id="image-preview-img" src="" alt="Preview" class="max-h-32 mx-auto rounded-lg object-cover">
+                                </div>
+                                <div id="image-placeholder" class="py-4">
+                                    <svg class="w-12 h-12 mx-auto text-gray-400 dark:text-gray-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Klik untuk upload gambar</p>
+                                    <p class="text-xs text-gray-400 mt-1">PNG, JPG, atau GIF</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex gap-3 pt-2">
+                        <button type="button" onclick="closeAddProductModal()" class="btn-secondary flex-1">Batal</button>
+                        <button type="submit" class="btn-primary flex-1">Simpan Produk</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
    <script>
     let inventory = [];
     let stockHistory = [];
@@ -270,6 +349,7 @@
         loadInventory();
         initializeStockChart();
         initializeForm();
+        initAddProductForm();
         updateStats();
     });
 
@@ -312,7 +392,11 @@
         items.forEach(item => {
             const div = document.createElement('div');
             div.className = 'inventory-item';
+            const imgHtml = item.image
+                ? `<img src="${item.image}" alt="${item.name}" class="w-12 h-12 object-cover rounded-lg mb-2">`
+                : `<div class="w-12 h-12 rounded-lg bg-gray-200 dark:bg-gray-600 flex items-center justify-center mb-2"><svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></div>`;
             div.innerHTML = `
+                ${imgHtml}
                 <h4 class="font-semibold text-gray-800">${item.name}</h4>
                 <div class="flex justify-between mt-2">
                     <span class="text-sm text-gray-600">Stok:</span>
@@ -374,6 +458,77 @@
     function updateStats() {
         document.getElementById('total-products').textContent = inventory.length;
         document.getElementById('safe-stock').textContent = inventory.filter(i => i.stock > i.minStock).length;
+    }
+
+    // --- Menambah Produk ---
+    function openAddProductModal() {
+        document.getElementById('add-product-modal').classList.add('show');
+        document.getElementById('add-product-form').reset();
+        document.getElementById('image-preview').classList.add('hidden');
+        document.getElementById('image-placeholder').classList.remove('hidden');
+        document.getElementById('image-preview-img').src = '';
+    }
+
+    function closeAddProductModal() {
+        document.getElementById('add-product-modal').classList.remove('show');
+    }
+
+    function initAddProductForm() {
+        const form = document.getElementById('add-product-form');
+        const fileInput = document.getElementById('new-product-image');
+        const modal = document.getElementById('add-product-modal');
+
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) closeAddProductModal();
+        });
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && modal.classList.contains('show')) closeAddProductModal();
+        });
+
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('image-preview-img').src = e.target.result;
+                    document.getElementById('image-preview').classList.remove('hidden');
+                    document.getElementById('image-placeholder').classList.add('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('new-product-name').value.trim();
+            const stock = parseInt(document.getElementById('new-product-stock').value) || 0;
+            const minStock = parseInt(document.getElementById('new-product-minstock').value) || 0;
+            const price = parseInt(document.getElementById('new-product-price').value) || 0;
+            const category = document.getElementById('new-product-category').value;
+            const fileInput = document.getElementById('new-product-image');
+            let imageData = null;
+
+            function doAdd() {
+                const newId = inventory.length ? Math.max(...inventory.map(i => i.id)) + 1 : 1;
+                const newProduct = { id: newId, name, stock, minStock, price, category, image: imageData };
+                inventory.push(newProduct);
+                renderInventory(inventory);
+                populateProductSelect();
+                updateStats();
+                closeAddProductModal();
+                alert('Produk berhasil ditambahkan!');
+            }
+            if (fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    imageData = ev.target.result;
+                    doAdd();
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                doAdd();
+            }
+        });
     }
 
     function initializeStockChart() {
